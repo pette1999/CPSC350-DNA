@@ -62,21 +62,13 @@ int main(int argc, char** argv)
         {
             line[i] = tolower(line[i]);
             if(line[i] == 'a')
-            {
                 count_A += 1;
-            }
             else if(line[i] == 't')
-            {
                 count_T += 1;
-            }
             else if(line[i] == 'c')
-            {
                 count_C += 1;
-            }
             else if(line[i] == 'g')
-            {
                 count_G += 1;
-            }
         }
 
         lineCount += 1;
@@ -153,31 +145,6 @@ int main(int argc, char** argv)
     fileIn.close();
 
     variance = temp_variance / lineCount;
-    
-    cout << "Total line length sum: " << lineLengthSum << endl;
-    cout << "The mean of the length: " << mean << endl;
-    cout << "The varianece of the length: " << variance << endl;
-    cout << "The satndard deviation of the length: " << sqrt(variance) << endl;
-    cout << "The probability of A: " << count_A / (double)lineLengthSum << endl;
-    cout << "The probability of T: " << count_T / (double)lineLengthSum << endl;
-    cout << "The probability of C: " << count_C / (double)lineLengthSum << endl;
-    cout << "The probability of G: " << count_G / (double)lineLengthSum << endl;
-    cout << "The probability of AA: " << (double)count_AA / (lineLengthSum/2) << endl;
-    cout << "The probability of AT: " << (double)count_AT / (lineLengthSum / 2) << endl;
-    cout << "The probability of AC: " << (double)count_AC / (lineLengthSum / 2) << endl;
-    cout << "The probability of AG: " << (double)count_AG / (lineLengthSum / 2) << endl;
-    cout << "The probability of TA: " << (double)count_TA / (lineLengthSum / 2) << endl;
-    cout << "The probability of TT: " << (double)count_TT / (lineLengthSum / 2) << endl;
-    cout << "The probability of TC: " << (double)count_TC / (lineLengthSum / 2) << endl;
-    cout << "The probability of TG: " << (double)count_TG / (lineLengthSum / 2) << endl;
-    cout << "The probability of CA: " << (double)count_CA / (lineLengthSum / 2) << endl;
-    cout << "The probability of CT: " << (double)count_CT / (lineLengthSum / 2) << endl;
-    cout << "The probability of CC: " << (double)count_CC / (lineLengthSum / 2) << endl;
-    cout << "The probability of CG: " << (double)count_CG / (lineLengthSum / 2) << endl;
-    cout << "The probability of GA: " << (double)count_GA / (lineLengthSum / 2) << endl;
-    cout << "The probability of GT: " << (double)count_GT / (lineLengthSum / 2) << endl;
-    cout << "The probability of GC: " << (double)count_GC / (lineLengthSum / 2) << endl;
-    cout << "The probability of GG: " << (double)count_GG / (lineLengthSum / 2) << endl;
 
     //Write all the stats to an output file
     //http://www.cplusplus.com/doc/tutorial/files/
@@ -218,29 +185,49 @@ int main(int argc, char** argv)
     fileOut << "GT:     " << (double)count_GT / (lineLengthSum / 2) << "\n";
     fileOut << "GG:     " << (double)count_GG / (lineLengthSum / 2) << "\n";
 
-    double temp_arr[1000];
-    double new_Sum = 0;
-    double a = 0.0, b = 0.0, c = 0.0, d = 0.0;
+    fileOut.close();//close writing file
 
-    for(int i=0; i<1000; ++i)
+        double new_Sum = 0;
+    double a = 0.0, b = 0.0, c = 0.0, d = 0.0;
+    double p_a = 10 * (count_A / (double)lineLengthSum); //get a number representitve for the probablility for A
+    double p_c = 10 * (count_C / (double)lineLengthSum); //get a number representitve for the probablility for C
+    double p_t = 10 * (count_C / (double)lineLengthSum); //get a number representitve for the probablility for T
+    double p_g = 10 * (count_C / (double)lineLengthSum); //get a number representitve for the probablility for G
+
+    // cout << "p_a: " << p_a << endl;
+    // cout << "p_c: " << p_c << endl;
+    // cout << "p_t: " << p_t << endl;
+    // cout << "p_g: " << p_g << endl;
+
+    double random_num = 0.0;
+    //https://stackoverflow.com/questions/2393345/how-to-append-text-to-a-text-file-in-c
+    //append to the textfile, instead of overwrite
+    fileOut.open("test.txt", std::ios_base::app);
+
+    for (int i = 0; i < 1000; ++i)
     {
         a = rand() / (double)RAND_MAX;
         b = rand() / (double)RAND_MAX;
         c = sqrt(-2.0 * log(a)) * cos(2.0 * M_PI * b);
         d = sqrt(variance) * c + mean;
+        
+        string temp_string = "";
+        for(int j = 0; j < d; ++j)
+        {
+            random_num = rand() / (RAND_MAX / 10 + 1.0);
+            if(random_num <= p_a)
+                temp_string += "A";
+            else if(random_num > p_a && random_num <= (p_a+p_c))
+                temp_string += "C";
+            else if(random_num > (p_a+p_c) && random_num <= (p_a+p_c+p_t))
+                temp_string += "T";
+            else if(random_num > (p_a+p_c+p_t))
+                temp_string += "G";
+        }
+        cout << "test string: " << temp_string << endl;
 
-        temp_arr[i] = d;
+        fileOut << temp_string << "\n";
+
         new_Sum += d;
     }
-
-    int temp_variance2 = 0;
-
-    cout << "Mean: " << new_Sum / 1000.0 << endl;
-
-    for (int i = 0; i < 1000; ++i)
-    {
-        temp_variance2 += abs((new_Sum / 1000.0) - temp_arr[i]) * abs((new_Sum / 1000.0) - temp_arr[i]);
-    }
-    cout << "Variance: " << temp_variance2/1000.0 << endl;
-    cout << "Standard deviation: " << sqrt(temp_variance2/1000.0) << endl;
 }
